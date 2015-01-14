@@ -1,0 +1,15 @@
+{
+  "name": "skema/skema",
+  "description": "ORM Data Modeling Platform",
+  "license": "MIT",
+  "homepage": "http://visop-dev.com",
+  "require": {
+    "bafs/testify": "dev-master",
+    "gabordemooij/redbean": "3.5.1"
+  },
+  "autoload": {
+    "psr-0": {
+      "Skema": "./Skema/"
+    }
+  }
+}
