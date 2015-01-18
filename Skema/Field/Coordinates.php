@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Coordinates {
+class Coordinates extends Base {
 
 }

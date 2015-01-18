@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class AutoIncrement {
+class AutoIncrement extends Base {
 
 }

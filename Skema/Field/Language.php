@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Language {
+class Language extends Base {
 
 }

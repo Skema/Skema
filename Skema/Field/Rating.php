@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Rating {
+class Rating extends Base {
 
 }

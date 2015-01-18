@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Email {
+class Email extends Base {
 
 }

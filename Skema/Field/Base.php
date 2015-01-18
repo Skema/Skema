@@ -9,6 +9,12 @@
 namespace Skema\Field;
 
 
-class Base {
+abstract class Base
+{
+	public $name;
 
+	public function __construct($name)
+	{
+		$this->name = $name;
+	}
 }

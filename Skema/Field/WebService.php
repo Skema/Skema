@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class WebService {
+class WebService extends Base {
 
 }

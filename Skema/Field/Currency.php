@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Currency {
+class Currency extends Base {
 
 }

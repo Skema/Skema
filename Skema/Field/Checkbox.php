@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Checkbox {
+class Checkbox extends Base {
 
 }

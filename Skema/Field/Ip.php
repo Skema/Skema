@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Ip {
+class Ip extends Base {
 
 }

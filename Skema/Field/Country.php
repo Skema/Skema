@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Country {
+class Country extends Base {
 
 }

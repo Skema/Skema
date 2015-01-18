@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Text {
+class Text extends Base {
 
 }

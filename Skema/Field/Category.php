@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Category {
+class Category extends Base {
 
 }

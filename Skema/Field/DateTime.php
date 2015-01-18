@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class DateTime {
+class DateTime extends Base {
 
 }

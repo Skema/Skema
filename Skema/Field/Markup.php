@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Markup {
+class Markup extends Base {
 
 }

@@ -1,7 +1,13 @@
 <?php
 require_once ('vendor/autoload.php');
-require_once ('default.config.php');
 
-R::setup("mysql:host=$host;dbname=$db", $user, $password);
+$tf = new \Testify\Testify('Skema Test Suite');
 
-$var = new Skema\Set();
+$tf->test('Name conversion', function() {
+	$skema = new Skema\Definition('version control');
+	$skema->replaceField(new Skema\Field\Number('version number'));
+
+	$skema->newRecord([
+		"version"
+	]);
+});

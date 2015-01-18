@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Binding {
+class Binding extends Base {
 
 }

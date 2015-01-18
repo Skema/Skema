@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Selector {
+class Selector extends Base {
 
 }

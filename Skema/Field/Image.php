@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Icon {
+class Icon extends Base {
 
 }

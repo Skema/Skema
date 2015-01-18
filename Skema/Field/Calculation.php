@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Calculation {
+class Calculation extends Base {
 
 }

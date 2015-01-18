@@ -9,6 +9,6 @@
 namespace Skema\Field;
 
 
-class Url {
+class Url extends Base {
 
 }
