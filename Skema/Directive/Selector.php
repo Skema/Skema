@@ -3,12 +3,12 @@
  * Created by PhpStorm.
  * User: robert
  * Date: 1/14/15
- * Time: 3:05 PM
+ * Time: 2:57 PM
  */
 
-namespace Skema\Definition\Field\Link;
+namespace Skema\Directive;
 
 
-class Record {
+class Selector extends Base {
 
 }

@@ -6,7 +6,7 @@
  * Time: 2:51 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class DropDown extends Base {

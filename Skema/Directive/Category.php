@@ -6,7 +6,7 @@
  * Time: 2:49 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Category extends Base {

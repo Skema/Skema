@@ -6,7 +6,7 @@
  * Time: 3:09 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class WebService extends Base {

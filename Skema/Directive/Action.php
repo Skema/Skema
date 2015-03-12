@@ -6,7 +6,7 @@
  * Time: 2:47 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Action extends Base {

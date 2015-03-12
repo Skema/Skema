@@ -6,7 +6,7 @@
  * Time: 2:58 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Icon extends Base {

@@ -6,7 +6,7 @@
  * Time: 3:08 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Text extends Base {

@@ -15,7 +15,7 @@ class Utility
 	{
 		$strNoAccent = self::stripAccents($str);
 		$strLower = strtolower($strNoAccent);
-		$friendly = preg_replace('/^[\w]+$/', '', $strLower);
+		$friendly = preg_replace('/[\W]+/', '', $strLower);
 		return $friendly;
 	}
 
@@ -23,7 +23,7 @@ class Utility
 	{
 		$strNoAccent = self::stripAccents($str);
 		$strLower = strtolower($strNoAccent);
-		$friendly = preg_replace('/^[\w]+$/', '_', $strLower);
+		$friendly = preg_replace('/[\W]+/', '', $strLower);
 		return $friendly;
 	}
 

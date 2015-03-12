@@ -6,7 +6,7 @@
  * Time: 3:05 PM
  */
 
-namespace Skema\Definition\Field\Link;
+namespace Skema\Directive\Link;
 
 
 class Set {

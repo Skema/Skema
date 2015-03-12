@@ -6,9 +6,9 @@
  * Time: 2:57 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
-class Selector extends Base {
+class Coordinates extends Base {
 
 }

@@ -6,9 +6,9 @@
  * Time: 3:07 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
-class Number extends Base {
+class Language extends Base {
 
 }

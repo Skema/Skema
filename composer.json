@@ -5,11 +5,27 @@
   "homepage": "http://visop-dev.com",
   "require": {
     "bafs/testify": "dev-master",
-    "gabordemooij/redbean": "3.5.1"
+    "gabordemooij/redbean": "dev-master"
   },
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "gabordemooij/redbean",
+        "version": "dev-master",
+        "dist": {
+          "url": "http://www.redbeanphp.com/downloadredbean.php",
+          "type": "tar"
+        }
+      }
+    }
+  ],
   "autoload": {
     "psr-0": {
-      "Skema": "./Skema/"
-    }
+      "Skema\\": "./"
+    },
+    "files": [
+      "vendor/gabordemooij/redbean/rb.php"
+    ]
   }
 }

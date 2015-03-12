@@ -3,12 +3,12 @@
  * Created by PhpStorm.
  * User: robert
  * Date: 1/14/15
- * Time: 3:00 PM
+ * Time: 2:53 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
-class Ip extends Base {
+class Email extends Base {
 
 }

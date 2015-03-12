@@ -6,7 +6,7 @@
  * Time: 3:10 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Markup extends Base {

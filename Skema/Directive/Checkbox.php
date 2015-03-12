@@ -6,9 +6,9 @@
  * Time: 2:50 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
-class Country extends Base {
+class Checkbox extends Base {
 
 }

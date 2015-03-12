@@ -6,7 +6,7 @@
  * Time: 3:06 PM
  */
 
-namespace Skema\Definition\Field;
+namespace Skema\Directive;
 
 
 class Binding extends Base {
