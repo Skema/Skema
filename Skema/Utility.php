@@ -11,7 +11,7 @@ namespace Skema;
 
 class Utility
 {
-	public static function cleanSkemaName($str)
+	public static function cleanTableName($str)
 	{
 		$strNoAccent = self::stripAccents($str);
 		$strLower = strtolower($strNoAccent);

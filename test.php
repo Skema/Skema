@@ -1,11 +1,14 @@
 <?php
 require_once ('vendor/autoload.php');
 
-$tf = new \Testify\Testify('Skema Test Suite');
+use Testify;
+use Skema;
+
+$tf = new Testify\Testify('Skema Test Suite');
 
 $tf->test('Name conversion', function() {
-	$skema = new Skema\Definition('version control');
-	$skema->replaceField(new Skema\Field\Number('version number'));
+	$set = new Skema\Set('version control');
+	$set->replaceField(new Skema\Field\Number('version number'));
 
 	$skema->newRecord([
 		"version"
