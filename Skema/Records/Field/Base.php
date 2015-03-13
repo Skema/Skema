@@ -86,4 +86,13 @@ abstract class Base
 
 		return $this;
 	}
+
+	public function _($name)
+	{
+		$className = get_class($this);
+		$parts = explode('\\', $className);
+		$classBase = array_pop($parts);
+		$prop = lcfirst($classBase) . ucfirst($name);
+		return $prop;
+	}
 }

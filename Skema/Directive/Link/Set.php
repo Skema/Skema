@@ -9,6 +9,8 @@
 namespace Skema\Directive\Link;
 
 
-class Set {
+use Skema\Directive;
+
+class Set extends Directive\Base {
 
 }

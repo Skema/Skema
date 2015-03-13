@@ -9,6 +9,8 @@
 namespace Skema\Records\Field\Link;
 
 
-class Set {
+use Skema\Records\Field\Base;
+
+class Set extends Base {
 
 }

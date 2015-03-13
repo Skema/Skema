@@ -18,6 +18,7 @@ class Currency extends Base {
 
 	public function renderHTML()
 	{
-		return $this->field->currencyType . ($this->value * 1);
+		$field = $this->field;
+		return $field->bean->{$field->_('symbol')} . ($this->value * 1);
 	}
 }

@@ -11,12 +11,14 @@ namespace Skema\Records\Field;
 
 class Currency extends Base {
 
-	public $currencyType = '$';
+	public $symbol = '$';
 
 	public function getBean()
 	{
+
 		$bean = parent::getBean();
-		$bean->currencyType = $this->currencyType;
+
+		$bean->{$this->_('symbol')} = $this->symbol;
 		return $bean;
 	}
 }

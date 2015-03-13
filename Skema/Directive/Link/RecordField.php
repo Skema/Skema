@@ -8,7 +8,8 @@
 
 namespace Skema\Directive\Link;
 
+use Skema\Directive;
 
-class RecordField {
+class RecordField extends Directive\Base {
 
 }
