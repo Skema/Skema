@@ -18,7 +18,7 @@ abstract class Base
 	public $cleanName;
 	public $directive = null;
 
-	private $bean = null;
+	public $bean = null;
 
 	/**
 	 * @param $name
@@ -70,5 +70,20 @@ abstract class Base
 			$instantiated = new $directiveClass($this);
 			return $instantiated;
 		}
+
+		$instantiated = new $this->directive($this);
+		return $instantiated;
+	}
+
+	public function addToSet(Skema\Set $set)
+	{
+		$setBean = $set->getBean();
+		$set->fields[$this->cleanName] = $this;
+		$fieldBean = $this->getBean();
+		$setBean->ownSkemafieldList[] = $fieldBean;
+
+		R::storeAll([$fieldBean, $setBean]);
+
+		return $this;
 	}
 }

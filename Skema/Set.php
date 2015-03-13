@@ -9,7 +9,7 @@
 namespace Skema;
 
 use R;
-use Skema\Records\Field;
+use Skema\Records\Field\Base;
 use Skema\Records\Record;
 
 class Set
@@ -48,17 +48,12 @@ class Set
 	}
 
 	/**
-	 * @param Skema\Records\Field\* $field
+	 * @param Base $field
 	 * @return $this
 	 */
 	public function addField($field)
 	{
-		$setBean = $this->getBean();
-		$this->fields[$field->cleanName] = $field;
-		$fieldBean = $field->getBean();
-		$setBean->ownSkemafieldList[] = $fieldBean;
-
-		R::storeAll([$fieldBean, $setBean]);
+		$field->addToSet($this);
 
 		return $this;
 	}
@@ -83,8 +78,6 @@ class Set
 		}
 
 		foreach($this->getBean()->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean) {
-			$record = [];
-
 			foreach($fields as $key => $field) {
 				if ($fieldFn === '') {
 					$value = $recordBean->{$key};
@@ -103,12 +96,23 @@ class Set
 		return $this;
 	}
 
-	public function eachRendered($fn)
+	public function eachHTML($fn)
 	{
 		$this->each($fn, function($directive, $value, $bean) {
 			$directive->setValue($value, $bean);
 
-			$result = $directive->render();
+			$result = $directive->renderHTML();
+
+			return $result;
+		});
+	}
+
+	public function eachJSON($fn)
+	{
+		$this->each($fn, function($directive, $value, $bean) {
+			$directive->setValue($value, $bean);
+
+			$result = $directive->renderJSON();
 
 			return $result;
 		});

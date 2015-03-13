@@ -28,7 +28,12 @@ abstract class Base
 		$this->bean = $bean;
 	}
 
-	public function render()
+	public function renderHTML()
+	{
+		return $this->value;
+	}
+
+	public function renderJSON()
 	{
 		return $this->value;
 	}

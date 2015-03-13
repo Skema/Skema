@@ -16,7 +16,7 @@ class Currency extends Base {
 		$this->field = $field;
 	}
 
-	public function render()
+	public function renderHTML()
 	{
 		return $this->field->currencyType . ($this->value * 1);
 	}

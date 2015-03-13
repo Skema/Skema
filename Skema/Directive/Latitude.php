@@ -3,21 +3,17 @@
  * Created by PhpStorm.
  * User: robert
  * Date: 1/14/15
- * Time: 3:07 PM
+ * Time: 2:57 PM
  */
 
 namespace Skema\Directive;
 
+use Skema\Records\Field;
 
-class Number extends Base {
+class Latitude extends Base {
 
 	public function renderHTML()
 	{
-		return $this->value * 1;
-	}
-
-	public function renderJSON()
-	{
-		return $this->value * 1;
+		return $this->value . '&deg;';
 	}
 }

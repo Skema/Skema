@@ -11,6 +11,6 @@ namespace Skema\Records\Field;
 use Skema;
 use R;
 
-class Coordinates extends Base {
+class Longitude extends Base {
 
 }
