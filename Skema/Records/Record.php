@@ -93,4 +93,14 @@ class Record {
 	{
 		R::trash($this->bean);
 	}
+
+	public function __get($key)
+	{
+		return $this->bean->$key;
+	}
+
+	public function __set($key, $value)
+	{
+		return $this->bean->$key = $value;
+	}
 }
