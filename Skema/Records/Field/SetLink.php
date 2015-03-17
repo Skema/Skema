@@ -6,11 +6,9 @@
  * Time: 3:05 PM
  */
 
-namespace Skema\Records\Field\Link;
+namespace Skema\Records\Field;
 
 
-use Skema\Records\Field\Base;
-
-class Set extends Base {
+class SetLink extends Base {
 
 }

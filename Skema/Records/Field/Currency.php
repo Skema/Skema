@@ -8,17 +8,18 @@
 
 namespace Skema\Records\Field;
 
+use Skema;
 
 class Currency extends Base {
 
 	public $symbol = '$';
 
-	public function getBean()
+	public function newBean()
 	{
-
-		$bean = parent::getBean();
+		$bean = parent::newBean();
 
 		$bean->{$this->_('symbol')} = $this->symbol;
+
 		return $bean;
 	}
 }

@@ -15,12 +15,16 @@ class Record {
 	public $set;
 	public $values;
 	public $cleanName;
+	public $bean = null;
 
-	public function __construct($values, Set $set)
+	public function __construct($values, Set $set, $bean = null)
 	{
 		$this->values = $values;
 		$this->cleanName = 'skemarecord' . $set->cleanBaseName;
 		$this->set = $set;
+		if ($bean !== null) {
+			$this->bean = $bean;
+		}
 	}
 
 	public function newBean()
@@ -42,5 +46,10 @@ class Record {
 	public function getValues()
 	{
 		return R::findAll($this->cleanName);
+	}
+
+	public function getBean()
+	{
+		return $this->bean;
 	}
 }

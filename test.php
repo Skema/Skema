@@ -167,5 +167,117 @@ $tf->test('Markup (wikiLingo)', function(Testify $tf) {
 		});
 });
 
+$tf->test('DropDown List Inputs', function(Testify $tf) {
+
+	(new Set('DropDown List'))
+		->addField((new Field\DropDown('Which?'))
+			->setOptions([1,2,3,4,5])
+		)
+
+		->addRecord([
+			'which' => 5
+		]);
+
+	(new Set('DropDown List'))
+		->eachHTMLInput(function($record) {
+			print_r($record);
+		});
+});
+
+$tf->test('Field Link', function(Testify $tf) {
+
+	(new Set('Color Set'))
+		->addField(new Field\Text('Color Name'))
+		->addField(new Field\Color('Color'))
+		->addField(new Field\Text('Emotion'))
+		->addField(new Field\Text('Meaning'))
+
+		->addRecord([
+			'colorname' => 'blue',
+			'color' => 'blue',
+			'emotion' => 'trust',
+			'meaning' => 'depth & stability'
+		])
+		->addRecord([
+			'colorname' => 'red',
+			'color' => 'red',
+			'emotion' => 'passion',
+			'meaning' => 'energy'
+		])
+		->addRecord([
+			'colorname' => 'orange',
+			'color' => 'orange',
+			'emotion' => 'joy',
+			'meaning' => 'enthusiasm'
+		]);
+
+	(new Set('My Favorite Color'))
+		->addField(new Field\Text('User'))
+		->addField((new Field\FieldLink('Favorite Color'))
+			->link(new Set('Color Set'), new Field\Color('Color'))
+		)
+
+		->addRecord([
+			'user' => 'Charles',
+			'favoritecolor' => 'red'
+		])
+
+		->getField('Favorite Color', function($field) {
+			//print_r($field->getOptions());
+		});
+
+	(new Set('My Favorite Color'))
+		->eachHTMLInput(function($record) {
+			//print_r($record);
+		});
+});
+
+$tf->test('Record Link', function(Testify $tf) {
+
+	(new Set('Color Set 2'))
+		->addField(new Field\Text('Color Name 2'))
+		->addField(new Field\Color('Color 2'))
+		->addField(new Field\Text('Emotion 2'))
+		->addField(new Field\Text('Meaning 2'))
+
+		->addRecord([
+			'colorname2' => 'blue',
+			'color2' => 'blue',
+			'emotion2' => 'trust',
+			'meaning2' => 'depth & stability'
+		])
+		->addRecord([
+			'colorname2' => 'red',
+			'color2' => 'red',
+			'emotion2' => 'passion',
+			'meaning2' => 'energy'
+		])
+		->addRecord([
+			'colorname2' => 'orange',
+			'color2' => 'orange',
+			'emotion2' => 'joy',
+			'meaning2' => 'enthusiasm'
+		]);
+
+	(new Set('My Favorite Color 2'))
+		->addField(new Field\Text('User 2'))
+		->addField((new Field\RecordLink('Favorite Color 2'))
+			->link(new Set('Color Set 2'), (new Set('Color Set 2'))->getRecord(1))
+		)
+
+		->addRecord([
+			'user2' => 'Charles',
+			'favoritecolor2' => 'red'
+		])
+
+		->getField('Favorite Color 2', function($field) {
+			//print_r($field->getOptions());
+		});
+
+	(new Set('My Favorite Color 2'))
+		->eachHTMLInput(function($record) {
+			//print_r($record);
+		});
+});
 ob_start();
 $tf();

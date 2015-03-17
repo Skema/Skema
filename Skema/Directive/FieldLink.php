@@ -3,13 +3,12 @@
  * Created by PhpStorm.
  * User: robert
  * Date: 1/14/15
- * Time: 2:51 PM
+ * Time: 3:06 PM
  */
 
 namespace Skema\Directive;
 
-
-class DropDown extends Base {
+class FieldLink extends Base {
 	public function renderHTMLInput()
 	{
 		$options = '';

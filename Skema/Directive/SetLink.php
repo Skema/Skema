@@ -6,10 +6,9 @@
  * Time: 3:05 PM
  */
 
-namespace Skema\Directive\Link;
+namespace Skema\Directive;
 
-use Skema\Directive;
 
-class Record extends Directive\Base {
+class SetLink extends Base {
 
 }

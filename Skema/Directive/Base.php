@@ -33,6 +33,18 @@ abstract class Base
 		return $this->value;
 	}
 
+	public function key()
+	{
+		$bean = $this->field->bean;
+		return $bean->cleanName . '[' . $bean->skemasetID . ']';
+	}
+
+	public function renderHTMLInput()
+	{
+		$key = $this->key();
+		return "<input type='text' name='{$key}' value='{$this->value}'>";
+	}
+
 	public function renderJSON()
 	{
 		return $this->value;

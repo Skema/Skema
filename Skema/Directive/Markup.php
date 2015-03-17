@@ -22,6 +22,13 @@ class Markup extends Base {
 		return self::$parser->parse($this->value);
 	}
 
+	public function renderHTMLInput()
+	{
+		$key = $this->key();
+		$valueHtmlSafe = htmlentities($this->value);
+		return "<textarea name='{$key}'>$valueHtmlSafe</textarea>";
+	}
+
 	public function renderJSON() {
 		if (self::$parser === null) {
 			self::$parser = new self::$parserClass();

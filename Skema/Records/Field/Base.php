@@ -10,28 +10,37 @@ namespace Skema\Records\Field;
 
 use R;
 use Skema;
+use Skema\Set;
 use Skema\Utility;
 
-abstract class Base
+class Base
 {
 	public $name;
 	public $cleanName;
 	public $directive = null;
+	public $set = null;
 
 	public $bean = null;
 
 	/**
 	 * @param $name
 	 * @param {Skema\Field\*} $field
+	 * @param {Set} $set
 	 */
-	public function __construct($name, $bean = null)
+	public function __construct($name, $bean = null, Set $set = null)
 	{
 		$this->name = $name;
 		$this->cleanName = Utility::cleanFieldName($name);
 
-		if ($bean !== null) {
-			$this->bean = $bean;
-		}
+		$this->bean = $bean;
+		$this->set = $set;
+	}
+
+	public static function byID($id)
+	{
+		$bean = R::findOne('skemafield', ' id = ? ', [ $id ]);
+		$field = new $bean->type($bean->name, $bean);
+		return $field;
 	}
 
 	public function fillBean()
@@ -44,19 +53,23 @@ abstract class Base
 
 	}
 
-	public function getBean()
+	public function newBean()
 	{
 		if ($this->bean !== null) return $this->bean;
 
-		$bean = R::findOne('skemafield', ' name = ? ', [$this->name]);
+		$bean = R::dispense('skemafield');
+		$bean->name = $this->name;
+		$bean->cleanName = $this->cleanName;
+		$bean->created = R::isoDateTime();
+		$bean->type = get_class($this);
 
-		if (empty($bean)) {
-			$bean = R::dispense('skemafield');
-			$bean->name = $this->name;
-			$bean->cleanName = $this->cleanName;
-			$bean->created = R::isoDateTime();
-			$bean->type = get_class($this);
-		}
+		return $this->bean = $bean;
+	}
+	public function getBean(Set $set)
+	{
+		if ($this->bean !== null) return $this->bean;
+
+		$bean = R::findOne('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $set->getBean()->getID()]);
 
 		return $this->bean = $bean;
 	}
@@ -75,11 +88,17 @@ abstract class Base
 		return $instantiated;
 	}
 
-	public function addToSet(Skema\Set $set)
+	public function addToSet(Set $set)
 	{
 		$setBean = $set->getBean();
+
+		if (R::count('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $setBean->getID()]) > 0) {
+			throw new \Exception('Already exists on set');
+		}
+
+		$fieldBean = $this->newBean();
+
 		$set->fields[$this->cleanName] = $this;
-		$fieldBean = $this->getBean();
 		$setBean->ownSkemafieldList[] = $fieldBean;
 
 		R::storeAll([$fieldBean, $setBean]);
@@ -94,5 +113,10 @@ abstract class Base
 		$classBase = array_pop($parts);
 		$prop = lcfirst($classBase) . ucfirst($name);
 		return $prop;
+	}
+
+	public static function exists($name)
+	{
+		return R::count('skemafield', ' name = ? ', [$name]) > 0;
 	}
 }
