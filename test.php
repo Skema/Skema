@@ -180,7 +180,7 @@ $tf->test('DropDown List Inputs', function(Testify $tf) {
 
 	(new Set('DropDown List'))
 		->eachHTMLInput(function($record) {
-			print_r($record);
+			//print_r($record);
 		});
 });
 
@@ -262,7 +262,7 @@ $tf->test('Record Link', function(Testify $tf) {
 	(new Set('My Favorite Color 2'))
 		->addField(new Field\Text('User 2'))
 		->addField((new Field\RecordLink('Favorite Color 2'))
-			->link(new Set('Color Set 2'), (new Set('Color Set 2'))->getRecord(1))
+			->link(new Set('Color Set 2'), 1)
 		)
 
 		->addRecord([
@@ -274,9 +274,10 @@ $tf->test('Record Link', function(Testify $tf) {
 			//print_r($field->getOptions());
 		});
 
-	(new Set('My Favorite Color 2'))
-		->eachHTMLInput(function($record) {
-			//print_r($record);
+	(new Set('My Favorite Color 2', true))
+		->eachHTMLInput(function($array, $id) {
+			echo $id . "\n";
+			print_r($array);
 		});
 });
 ob_start();

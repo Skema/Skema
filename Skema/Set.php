@@ -9,7 +9,8 @@
 namespace Skema;
 
 use R;
-use Skema\Records\Field\Base;
+use Skema\Records\Field;
+use Skema\Directive;
 use Skema\Records\Record;
 
 class Set
@@ -17,31 +18,47 @@ class Set
 	public $name;
 	public $cleanName;
 	public $description;
-	public $fields = [];
-	public $bean = null;
 
 	/**
-	 * @param {String} $name
+	 * @var Field\Base[]
+	 */
+	public $fields = [];
+
+	/**
+	 * @var Directive\Base[]
+	 */
+	public $directives = [];
+	private $bean = null;
+	public $useUncleanKeys = false;
+
+	/**
+	 * @param String $name
+	 * @param Boolean $useUncleanKeys
 	 * @param $bean
 	 */
-	public function __construct($name, $bean = null)
+	public function __construct($name, $useUncleanKeys = false, $bean = null)
 	{
 		$this->name = $name;
 		$this->cleanBaseName = Utility::cleanTableName($name);
 		$this->cleanName = 'skemaset' . $this->cleanBaseName;
+		$this->useUncleanKeys = $useUncleanKeys;
 
 		if ($bean === null) {
-			$this->getBean();
+			$bean = $this->getBean();
 		} else {
 			$this->bean = $bean;
 		}
+
+		if ($bean !== null) {
+			$this->setFieldsAndDirectives();
+		}
 	}
 
-	public static function byID($id)
+	public static function byID($id, $useUncleanKeys = false)
 	{
 		$bean = R::findOne('skemaset', ' id = ? ', [ $id ]);
 
-		return new self($bean->name, $bean);
+		return new self($bean->name, $useUncleanKeys, $bean);
 	}
 
 	public function getBean()
@@ -62,49 +79,94 @@ class Set
 		return $this->bean = $bean;
 	}
 
+	public function setFieldsAndDirectives() {
+		foreach($this->getBean()->ownSkemafieldList as $fieldBean) {
+			$field = Type::Field(new $fieldBean->type($fieldBean->name, $this, $fieldBean));
+
+			$this->fields[$this->useUncleanKeys ? $fieldBean->name : $fieldBean->cleanName] = $field;
+			$this->directives[$this->useUncleanKeys ? $fieldBean->name : $fieldBean->cleanName] = $field->getDirective();
+		}
+
+		return $this;
+	}
+
 	/**
-	 * @param Base $field
+	 * @param Field\Base $field
 	 * @return $this
 	 */
 	public function addField($field)
 	{
 		$field->addToSet($this);
-		return $this;
-	}
-
-	public function addRecord($array) {
-		$record = new Record($array, $this);
-
-		$record->add($this->getBean());
+		$this->directives[$this->useUncleanKeys ? $field->name : $field->cleanName] = $field->getDirective();
 
 		return $this;
 	}
 
-	public function each($fn, $fieldFn = '', $useUncleanKeys = false)
+	public function addRecord($values) {
+		foreach($values as $key => $value) {
+			$this->directives[$key]->setValue($value);
+		}
+		$record = new Record($this->directives, $this, null, $this->useUncleanKeys);
+
+		$record->addTo($this);
+
+		return $this;
+	}
+
+	public function getRecord($id)
 	{
-		$setBean = $this->getBean();
-		$fields = [];
-		$directives = [];
+		$fields = $this->fields;
+		$directives = $this->directives;
 
-		foreach($setBean->ownSkemafieldList as $fieldBean) {
-			$fields[$fieldBean->cleanName] = $field = new $fieldBean->type($fieldBean->name, $fieldBean);
-			$directives[$fieldBean->cleanName] = $field->getDirective();
+		$recordBean = R::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
+
+		foreach($recordBean as $key => $value) {
+			if (isset($directives[$this->useUncleanKeys ? $fields[$key]->name : $key])) {
+				$directives[$this->useUncleanKeys ? $fields[$key]->name : $key]->setValue($value);
+			}
 		}
 
-		foreach($this->getBean()->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean) {
-			foreach($fields as $key => $field) {
-				if ($fieldFn === '') {
-					$value = $recordBean->{$key};
+		return new Record($directives, $this, $recordBean, $this->useUncleanKeys);
+	}
+
+	/**
+	 * @param callback $fn
+	 * @param callback [$fieldFn]
+	 *
+	 * @return $this
+	 */
+	public function each($fn, $fieldFn = null)
+	{
+		$setBean = $this->getBean();
+		$fields = $this->fields;
+		$directives = $this->directives;
+
+		if ($fieldFn === null) {
+			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
+				$values          = [ ];
+
+				foreach ( $fields as $key => $field ) {
+					$directive = Type::Directive($directives[ $key ])
+						->setValue( $recordBean->{$key} );
+
+					$values[ $this->useUncleanKeys ? $field->name : $key ] = $directive;
 				}
 
-				else {
-					$value = $fieldFn($directives[$key], $recordBean->{$key}, $recordBean);
-				}
-
-				$record[$useUncleanKeys ? $field->name : $key] = $value;
+				$fn( new Record( $values, $this, $recordBean, $this->useUncleanKeys ) );
 			}
+		} else {
+			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
+				$processedValues = [ ];
 
-			$fn($record);
+				foreach ( $fields as $key => $field ) {
+					$directive = Type::Directive($directives[ $key ])
+						->setValue( $recordBean->{$key} );
+
+					$processedValues[ $this->useUncleanKeys ? $field->name : $key ] = $fieldFn( $directive );
+				}
+
+				$fn( $processedValues, $recordBean->getID() );
+			}
 		}
 
 		return $this;
@@ -112,51 +174,46 @@ class Set
 
 	public function eachHTML($fn)
 	{
-		$this->each($fn, function($directive, $value, $bean) {
-			$directive->setValue($value, $bean);
+		$this->each($fn, function($directive) {
 
 			$result = $directive->renderHTML();
 
 			return $result;
 		});
+
+		return $this;
 	}
 
 	public function eachHTMLInput($fn) {
-		$this->each($fn, function($directive, $value, $bean) {
-			$directive->setValue($value, $bean);
+		$this->each($fn, function($directive) {
 
 			$result = $directive->renderHTMLInput();
 
 			return $result;
-		}, true);
+		});
+
+		return $this;
 	}
 
 	public function eachJSON($fn)
 	{
-		$this->each($fn, function($directive, $value, $bean) {
-			$directive->setValue($value, $bean);
+		$this->each($fn, function($directive) {
 
 			$result = $directive->renderJSON();
 
 			return $result;
 		});
+
+		return $this;
 	}
 
 	public function getField($fieldName, $fn)
 	{
 		$fieldBean = R::findOne('skemafield', ' name = ? and skemaset_id = ? ', [$fieldName, $this->bean->getID()]);
 		if (!empty($fieldBean)) {
-			$fn(new $fieldBean->type($fieldBean->name, $fieldBean, $this));
+			$fn(new $fieldBean->type($fieldBean->name, $this, $fieldBean));
 		}
-	}
 
-	public function getRecord($id, $useUncleanKeys = false)
-	{
-		$recordBean = R::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
-		$values = [];
-		foreach($recordBean as $key => $value) {
-			$values[$key] = $value;
-		}
-		return new Record($values, $this, $recordBean);
+		return $this;
 	}
 }

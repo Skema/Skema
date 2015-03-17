@@ -26,11 +26,12 @@ class DropDown extends Base {
 
 	public function setOptions($options)
 	{
-		if ($this->bean === null) {
-			$this->newBean();
+		$bean = $this->getBean();
+
+		if ($bean === null) {
+			$bean = $this->newBean();
 		}
 
-		$bean = $this->bean;
 		$bean->{$this->_('options')} = implode(',', $options);
 
 		R::store($bean);
@@ -39,10 +40,11 @@ class DropDown extends Base {
 
 	public function getOptions()
 	{
-		if ($this->bean === null) return [];
+		$bean = $this->getBean();
+		if ($bean === null) return [];
 
 		$result = [];
-		$optionsRaw = $this->bean->{$this->_('options')};
+		$optionsRaw = $bean->{$this->_('options')};
 		$options = explode(',', $optionsRaw);
 		foreach ($options as $option) {
 			$result[] = trim($option);

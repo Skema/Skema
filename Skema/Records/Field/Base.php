@@ -13,44 +13,33 @@ use Skema;
 use Skema\Set;
 use Skema\Utility;
 
-class Base
+abstract class Base
 {
 	public $name;
 	public $cleanName;
 	public $directive = null;
 	public $set = null;
 
-	public $bean = null;
+	private $bean = null;
 
 	/**
 	 * @param $name
-	 * @param {Skema\Field\*} $field
-	 * @param {Set} $set
+	 * @param Set $set
+	 * @param $bean
 	 */
-	public function __construct($name, $bean = null, Set $set = null)
+	public function __construct($name, Set $set = null, $bean = null)
 	{
 		$this->name = $name;
 		$this->cleanName = Utility::cleanFieldName($name);
-
-		$this->bean = $bean;
 		$this->set = $set;
+		$this->bean = $bean;
 	}
 
-	public static function byID($id)
+	public static function byID($id, Set $set)
 	{
 		$bean = R::findOne('skemafield', ' id = ? ', [ $id ]);
-		$field = new $bean->type($bean->name, $bean);
+		$field = new $bean->type($bean->name, $set, $bean);
 		return $field;
-	}
-
-	public function fillBean()
-	{
-
-	}
-
-	public function fillField()
-	{
-
 	}
 
 	public function newBean()
@@ -65,13 +54,20 @@ class Base
 
 		return $this->bean = $bean;
 	}
-	public function getBean(Set $set)
+	public function getBean(Set $set = null)
 	{
 		if ($this->bean !== null) return $this->bean;
 
-		$bean = R::findOne('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $set->getBean()->getID()]);
+		if ($set !== null) {
+			$bean = R::findOne( 'skemafield', ' name = ? and skemaset_id = ? ', [
+				$this->name,
+				$set->getBean()->getID()
+			] );
 
-		return $this->bean = $bean;
+			return $this->bean = $bean;
+		}
+
+		return null;
 	}
 
 	public function getDirective()
@@ -80,11 +76,11 @@ class Base
 			$classParts = explode('\\', get_class($this));
 			$baseClassName = array_pop($classParts);
 			$directiveClass = 'Skema\\Directive\\' . $baseClassName;
-			$instantiated = new $directiveClass($this);
+			$instantiated = new $directiveClass($this, $this->set);
 			return $instantiated;
 		}
 
-		$instantiated = new $this->directive($this);
+		$instantiated = new $this->directive($this, $this->set);
 		return $instantiated;
 	}
 
@@ -99,6 +95,7 @@ class Base
 		$fieldBean = $this->newBean();
 
 		$set->fields[$this->cleanName] = $this;
+		$this->set = $set;
 		$setBean->ownSkemafieldList[] = $fieldBean;
 
 		R::storeAll([$fieldBean, $setBean]);

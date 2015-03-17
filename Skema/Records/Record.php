@@ -9,22 +9,40 @@
 namespace Skema\Records;
 
 use R;
+use RedBeanPHP\OODBBean;
 use Skema\Set;
+use Skema\Directive;
+use Skema\Records\Field;
 
 class Record {
-	public $set;
-	public $values;
-	public $cleanName;
-	public $bean = null;
 
-	public function __construct($values, Set $set, $bean = null)
+	/**
+	 * @var Set
+	 */
+	public $set;
+
+	/**
+	 * @var Directive\*[]
+	 */
+	public $directives;
+	public $cleanName;
+	public $useUncleanKeys = false;
+
+	private $bean = null;
+
+	/**
+	 * @param Directive\*[] $directives
+	 * @param Set $set
+	 * @param OODBBean $bean
+	 * @param Boolean [$useUncleanKeys]
+	 */
+	public function __construct($directives, Set $set, OODBBean $bean = null, $useUncleanKeys = false)
 	{
-		$this->values = $values;
+		$this->directives = $directives;
 		$this->cleanName = 'skemarecord' . $set->cleanBaseName;
 		$this->set = $set;
-		if ($bean !== null) {
-			$this->bean = $bean;
-		}
+		$this->useUncleanKeys = $useUncleanKeys;
+		$this->bean = $bean;
 	}
 
 	public function newBean()
@@ -33,14 +51,26 @@ class Record {
 		return $bean;
 	}
 
-	public function add($setBean)
+	public function addTo(Set $set)
 	{
+		$setBean = $set->getBean();
 		$recordBean = $this->newBean();
-		foreach($this->values as $key => $value) {
-			$recordBean->{$key} = $value;
+		foreach($this->directives as $key => $directive) {
+			$recordBean->{$key} = $directive->value;
 		}
 		$setBean->{'own' . ucfirst($this->cleanName) . 'List'}[] = $recordBean;
 		R::storeAll([$recordBean, $setBean]);
+
+		return $this;
+	}
+
+	/**
+	 * @param Field\Base $field
+	 * @return Directive\*
+	 */
+	public function fieldDirective($field)
+	{
+		return $this->directives[$this->useUncleanKeys ? $field->name : $field->cleanName];
 	}
 
 	public function getValues()
@@ -51,5 +81,16 @@ class Record {
 	public function getBean()
 	{
 		return $this->bean;
+	}
+
+	public function update()
+	{
+		R::store($this->bean);
+		return $this;
+	}
+
+	public function delete()
+	{
+		R::trash($this->bean);
 	}
 }

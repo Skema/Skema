@@ -10,6 +10,7 @@ namespace Skema\Records\Field;
 
 use Skema;
 use Skema\Set;
+use Skema\Records\Record;
 use R;
 
 class FieldLink extends Base {
@@ -24,11 +25,11 @@ class FieldLink extends Base {
 	 */
 	public function link(Set $linkedSet, $linkedField)
 	{
-		if ($this->bean === null) {
-			$this->newBean();
+		$bean = $this->getBean();
+		if ($bean === null) {
+			$bean = $this->newBean();
 		}
 
-		$bean = $this->bean;
 		$bean->{$this->_('linkedSetId')} = $linkedSet->getBean()->getID();
 		$bean->{$this->_('linkedFieldId')} = $linkedField->getBean($linkedSet)->getID();
 
@@ -38,13 +39,14 @@ class FieldLink extends Base {
 
 	public function getOptions()
 	{
-		if ($this->bean === null) return [];
+		$bean = $this->getBean();
+		if ($bean === null) return [];
 
 		$result = [];
-		$set = Set::byID($this->bean->{$this->_('linkedSetId')});
-		$field = self::byID($this->bean->{$this->_('linkedFieldId')});
-		$set->each(function($record) use (&$result, $field) {
-			$result[] = $record[$field->cleanName];
+		$set = Set::byID($bean->{$this->_('linkedSetId')});
+		$field = self::byID($bean->{$this->_('linkedFieldId')}, $set);
+		$set->each(function(Record $record) use (&$result, $field) {
+			$result[] = $record->fieldDirective($field)->value;
 		});
 
 		return $result;

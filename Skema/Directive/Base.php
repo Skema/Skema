@@ -8,6 +8,7 @@
 
 namespace Skema\Directive;
 
+use Skema\Set;
 use Skema\Utility;
 use R;
 use Skema;
@@ -16,16 +17,18 @@ abstract class Base
 {
 	public $field;
 	public $value;
-	public $bean;
+	public $set;
 
-	public function __construct($field) {
+	public function __construct($field, Set $set) {
 		$this->field = $field;
+		$this->set = $set;
 	}
 
-	public function setValue($value, $bean)
+	public function setValue($value)
 	{
 		$this->value = $value;
-		$this->bean = $bean;
+
+		return $this;
 	}
 
 	public function renderHTML()
@@ -35,7 +38,7 @@ abstract class Base
 
 	public function key()
 	{
-		$bean = $this->field->bean;
+		$bean = $this->field->getBean($this->set);
 		return $bean->cleanName . '[' . $bean->skemasetID . ']';
 	}
 
