@@ -223,7 +223,7 @@ $tf->test('Field Link', function(Testify $tf) {
 		])
 
 		->getField('Favorite Color', function($field) {
-			//print_r($field->getOptions());
+			print_r($field->getOptions());
 		});
 
 	(new Set('My Favorite Color'))
@@ -262,12 +262,12 @@ $tf->test('Record Link', function(Testify $tf) {
 	(new Set('My Favorite Color 2'))
 		->addField(new Field\Text('User 2'))
 		->addField((new Field\RecordLink('Favorite Color 2'))
-			->link(new Set('Color Set 2'), 1)
+			->link(new Set('Color Set 2'))
 		)
 
 		->addRecord([
 			'user2' => 'Charles',
-			'favoritecolor2' => 'red'
+			'favoritecolor2' => 2
 		])
 
 		->getField('Favorite Color 2', function($field) {

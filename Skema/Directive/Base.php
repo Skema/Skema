@@ -31,15 +31,15 @@ abstract class Base
 		return $this;
 	}
 
-	public function renderHTML()
-	{
-		return $this->value;
-	}
-
 	public function key()
 	{
 		$bean = $this->field->getBean($this->set);
 		return $bean->cleanName . '[' . $bean->skemasetID . ']';
+	}
+
+	public function renderHTML()
+	{
+		return $this->value;
 	}
 
 	public function renderHTMLInput()

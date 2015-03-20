@@ -70,6 +70,7 @@ class Set
 		if (empty($bean)) {
 			$bean = R::dispense('skemaset');
 			$bean->name = $this->name;
+			$bean->cleanName = Utility::cleanTableName($this->name);
 			$bean->created = R::isoDateTime();
 			$bean->description = '';
 			$bean->ownFieldList;

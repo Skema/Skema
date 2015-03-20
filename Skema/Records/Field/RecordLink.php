@@ -16,10 +16,9 @@ class RecordLink extends Base {
 
 	/**
 	 * @param Set $linkedSet
-	 * @param number $linkedRecordId
 	 * @returns $this
 	 */
-	public function link(Set $linkedSet, $linkedRecordId)
+	public function link(Set $linkedSet)
 	{
 		$bean = $this->getBean();
 		if ($bean === null) {
@@ -27,17 +26,21 @@ class RecordLink extends Base {
 		}
 
 		$bean->{$this->_('linkedSetId')} = $linkedSet->getBean()->getID();
-		$bean->{$this->_('linkedRecordId')} = $linkedRecordId;
 
 		R::store($bean);
 		return $this;
 	}
 
-	public function getOptions(Set $set)
+	public function getOptions()
 	{
 		$records = [];
-		foreach($set->getBean()->{'ownSkemarecord' . $set->cleanBaseName . 'List'} as $recordBean) {
-			$records[] = new Record($set->directives, $set, $recordBean, $set->useUncleanKeys);
+		$linkedSetId = $this->getBean()->{$this->_('linkedSetId')};
+
+		if (isset($linkedSetId)) {
+			$set = Set::byID($linkedSetId, $this->set->useUncleanKeys);
+			foreach($set->getBean()->{'ownSkemarecord' . $set->cleanBaseName . 'List'} as $id => $recordBean) {
+				$records[] = new Record($set->directives, $set, $recordBean, $set->useUncleanKeys);
+			}
 		}
 
 		return $records;
