@@ -9,9 +9,9 @@
 namespace Skema;
 
 use R;
-use Skema\Records\Field;
+use Skema\Field;
 use Skema\Directive;
-use Skema\Records\Record;
+use Skema\Record;
 
 class Set
 {
@@ -48,7 +48,7 @@ class Set
 		$this->keyType = $keyType;
 
 		if ($bean === null) {
-			$bean = $this->getBean();
+			$this->bean = $bean = $this->getBean();
 		} else {
 			$this->bean = $bean;
 		}
@@ -190,9 +190,11 @@ class Set
 			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
 				$values          = [ ];
 
+				$recordID = $recordBean->getID();
+
 				foreach ( $fields as $cleanName => $field ) {
 					$directive = Type::Directive($directives[ $cleanName ])
-						->setValue( $recordBean->{$cleanName}, $recordBean->getID() );
+						->setValue( $recordBean->{$cleanName}, $recordID );
 
 					switch ($this->keyType) {
 						default:
@@ -210,7 +212,7 @@ class Set
 					$values[ $key ] = $directive;
 				}
 
-				$fn( $values, $this, $recordBean, $this->keyType );
+				$fn( $values, $recordID, $this, $recordBean, $this->keyType );
 			}
 		} else {
 			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
@@ -247,7 +249,7 @@ class Set
 	{
 		$this->each($fn, function($directive) {
 
-			$result = $directive->renderHTML();
+			$result = Type::Directive($directive)->renderHTML();
 
 			return $result;
 		});
@@ -255,10 +257,10 @@ class Set
 		return $this;
 	}
 
-	public function eachHTMLInput($fn) {
+	public function allHTMLInputs($fn) {
 		$this->each($fn, function($directive) {
 
-			$result = $directive->renderHTMLInput();
+			$result = Type::Directive($directive)->renderHTMLInput();
 
 			return $result;
 		});
@@ -270,7 +272,7 @@ class Set
 	{
 		$this->each($fn, function($directive) {
 
-			$result = $directive->renderJSON();
+			$result = Type::Directive($directive)->renderJSON();
 
 			return $result;
 		});

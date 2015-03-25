@@ -6,14 +6,11 @@
  * Time: 2:57 PM
  */
 
-namespace Skema\Directive;
+namespace Skema\Field;
 
-use Skema\Field;
+use Skema;
+use R;
 
 class Longitude extends Base {
 
-	public function renderHTML()
-	{
-		return $this->value . '&deg;';
-	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 use Skema\Set;
-use Skema\Records\Field;
+use Skema\Field;
 
 (new Set('Markup (wikiLingo)'))
 	->addField(new Field\Markup('My Markup'));

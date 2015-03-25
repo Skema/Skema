@@ -9,8 +9,8 @@
 namespace Skema;
 
 
-use Skema\Records\Record;
-use Skema\Records\Field;
+use Skema\Record;
+use Skema\Field;
 
 class Type {
 	/**

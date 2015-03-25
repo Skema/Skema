@@ -8,7 +8,7 @@
 
 namespace Skema\Directive;
 
-use Skema\Records\Field;
+use Skema\Field;
 
 class Currency extends Base {
 

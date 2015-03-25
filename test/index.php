@@ -2,7 +2,7 @@
 require_once '../vendor/autoload.php';
 
 use Skema\Set;
-use Skema\Records\Field;
+use Skema\Field;
 use Testify\Testify;
 
 error_reporting(E_ALL);
@@ -172,8 +172,35 @@ $tf->test('DropDown List Inputs', function(Testify $tf) {
 		]);
 
 	(new Set('DropDown List', Set::$keysClean))
-		->eachHTMLInput(function($record) {
-			//print_r($record);
+		->allHTMLInputs(function($values) use ($tf) {
+			$dom = new DOMDocument();
+			$dom->loadHTML($values['which']);
+			$options = $dom->getElementsByTagName('option');
+
+			foreach($options as $i => $option) {
+				switch ($i) {
+					case 0:
+						$tf->assertEquals($option->textContent, '1');
+						$tf->assertNotEquals($option->getAttribute('selected'), 'selected');
+						break;
+					case 1:
+						$tf->assertEquals($option->textContent, '2');
+						$tf->assertNotEquals($option->getAttribute('selected'), 'selected');
+						break;
+					case 2:
+						$tf->assertEquals($option->textContent, '3');
+						$tf->assertNotEquals($option->getAttribute('selected'), 'selected');
+						break;
+					case 3:
+						$tf->assertEquals($option->textContent, '4');
+						$tf->assertNotEquals($option->getAttribute('selected'), 'selected');
+						break;
+					case 4:
+						$tf->assertEquals($option->textContent, '5');
+						$tf->assertEquals($option->getAttribute('selected'), 'selected');
+						break;
+				}
+			}
 		});
 });
 
@@ -232,7 +259,7 @@ $tf->test('Field Link (colors)', function(Testify $tf) {
 		});
 
 	(new Set('My Favorite Color', Set::$keysClean))
-		->eachHTMLInput(function($values) use ($tf) {
+		->allHTMLInputs(function($values) use ($tf) {
 			foreach($values as $key => $value) {
 				switch ($key) {
 					case 'user':
@@ -292,23 +319,52 @@ $tf->test('Record Link', function(Testify $tf) {
 
 		->getField('favoritecolor2', function(Field\RecordLink $field) use ($tf) {
 			$totalOptions = 0;
-			foreach($field->getOptions() as $recordKey => $record) {
-				switch ($record->color2) {
+			$field->eachOption(function($directives) use (&$totalOptions) {
+				switch ($directives['color2']->value) {
 					case 'blue':
 					case 'red':
 					case 'orange':
 						$totalOptions++;
 				}
-			}
+			});
 
 			$tf->assertEquals($totalOptions, 3, 'Correct number of linked records');
 		});
 
+	$totalOptions = 0;
 	(new Set('My Favorite Color 2', Set::$keysClean))
-		->eachHTMLInput(function($array) {
-			//echo $id . "\n";
-			print_r($array);
+		->allHTMLInputs(function($array) use (&$totalOptions, $tf) {
+			foreach($array as $key => $input) {
+				switch ($key) {
+					case 'user2':
+						$tf->assertEquals(strstr($input, 'Charles'), true, 'Correct value');
+						$totalOptions++;
+						break;
+					case 'favoritecolor2':
+						$doc = new DOMDocument();
+						$doc->loadHTML($input);
+						$children = $doc->getElementsByTagName('option');
+						foreach($children as $i => $child) {
+							switch ($i) {
+								case 0:
+									$tf->assertEquals($child->textContent, 'trust / depth & stability', 'Correct items in select element');
+									break;
+								case 1:
+									$tf->assertEquals($child->getAttribute('selected'), 'selected', 'Correct item selected');
+									$tf->assertEquals($child->textContent, 'passion / energy', 'Correct value selected');
+									break;
+								case 2:
+									$tf->assertEquals($child->textContent, 'joy / enthusiasm', 'Correct items in select element');
+									break;
+							}
+						}
+						$totalOptions++;
+						break;
+				}
+			}
 		});
+
+	$tf->assertEquals($totalOptions, 2, 'Correct number of inputs');
 });
 ob_start();
 $tf();

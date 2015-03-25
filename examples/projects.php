@@ -1,7 +1,7 @@
 <?php
 
 use Skema\Set;
-use Skema\Records\Field;
+use Skema\Field;
 
 (new Set('Projects'))
 	->addField((new Field\RecordLink('Client'))
@@ -79,7 +79,9 @@ use Skema\Records\Field;
 	->addField(new Field\City('City'))
 	->addField(new Field\Province('State'))
 	->addField(new Field\Country('Country'))
-	->addField(new Field\Zip('Zip'));
+	->addField(new Field\Zip('Zip'))
+	->addField(new Field\Longitude('Longitude'))
+	->addField(new Field\Longitude('Latitude'));
 
 
 (new Set('Phone Numbers'))

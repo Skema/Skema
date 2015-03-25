@@ -8,7 +8,7 @@
 
 namespace Skema\Directive;
 
-use Skema\Records\Field;
+use Skema\Field;
 use Skema\Set;
 use Skema\Utility;
 use R;
@@ -60,6 +60,11 @@ abstract class Base
 
 		return 'skema[' . $setKey . '][' . $this->recordID . '][' . $fieldKey . ']';
 
+	}
+
+	public function renderPlain()
+	{
+		return $this->value;
 	}
 
 	public function renderHTML()
