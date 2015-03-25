@@ -22,11 +22,11 @@ class Record {
 	public $set;
 
 	/**
-	 * @var Directive\*[]
+	 * @var Directive\Base[]
 	 */
 	public $directives;
 	public $cleanName;
-	public $useUncleanKeys = false;
+	public $keyType;
 
 	private $bean = null;
 
@@ -34,14 +34,14 @@ class Record {
 	 * @param Directive\*[] $directives
 	 * @param Set $set
 	 * @param OODBBean $bean
-	 * @param Boolean [$useUncleanKeys]
+	 * @param Number [$keyType]
 	 */
-	public function __construct($directives, Set $set, OODBBean $bean = null, $useUncleanKeys = false)
+	public function __construct($directives, Set $set, OODBBean $bean = null, $keyType = 0)
 	{
 		$this->directives = $directives;
 		$this->cleanName = 'skemarecord' . $set->cleanBaseName;
 		$this->set = $set;
-		$this->useUncleanKeys = $useUncleanKeys;
+		$this->keyType = $keyType;
 		$this->bean = $bean;
 	}
 
@@ -55,8 +55,8 @@ class Record {
 	{
 		$setBean = $set->getBean();
 		$recordBean = $this->newBean();
-		foreach($this->directives as $key => $directive) {
-			$recordBean->{$key} = $directive->value;
+		foreach($this->directives as $directive) {
+			$recordBean->{$directive->field->cleanName} = $directive->value;
 		}
 		$setBean->{'own' . ucfirst($this->cleanName) . 'List'}[] = $recordBean;
 		R::storeAll([$recordBean, $setBean]);
@@ -70,12 +70,20 @@ class Record {
 	 */
 	public function fieldDirective($field)
 	{
-		return $this->directives[$this->useUncleanKeys ? $field->name : $field->cleanName];
-	}
+		switch ($this->keyType) {
+			default:
+			case Set::$keysID:
+				$key = $field->getBean()->getID();
+				break;
+			case Set::$keysClean:
+				$key = $field->cleanName;
+				break;
+			case Set::$keysDirty:
+				$key = $field->name;
+				break;
+		}
 
-	public function getValues()
-	{
-		return R::findAll($this->cleanName);
+		return $this->directives[$key];
 	}
 
 	public function getBean()

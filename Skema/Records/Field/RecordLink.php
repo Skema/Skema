@@ -14,6 +14,43 @@ use R;
 
 class RecordLink extends Base {
 
+	public $htmlInputTemplate = '';
+
+	public function __construct($name, Set $set = null, $bean = null)
+	{
+		parent::__construct($name, $set, $bean);
+
+		if ($bean !== null) {
+			$this->htmlInputTemplate = $bean->{$this->_('htmlInputTemplate')};
+		}
+	}
+
+	public function setHtmlInputTemplate($htmlInputTemplate){
+		$this->htmlInputTemplate = $htmlInputTemplate;
+
+		return $this;
+	}
+
+	public function newBean()
+	{
+		$bean = parent::newBean();
+
+		$bean->{$this->_('htmlInputTemplate')} = $this->htmlInputTemplate;
+
+		return $bean;
+	}
+
+	public function getBean(Set $set = null)
+	{
+		$bean = parent::getBean($set);
+
+		if ($bean !== null) {
+			$this->htmlInputTemplate = $bean->{$this->_('htmlInputTemplate')};
+		}
+
+		return $bean;
+	}
+
 	/**
 	 * @param Set $linkedSet
 	 * @returns $this
@@ -31,15 +68,18 @@ class RecordLink extends Base {
 		return $this;
 	}
 
+	/**
+	 * @return \RedBean_SimpleModel[]
+	 */
 	public function getOptions()
 	{
 		$records = [];
 		$linkedSetId = $this->getBean()->{$this->_('linkedSetId')};
 
 		if (isset($linkedSetId)) {
-			$set = Set::byID($linkedSetId, $this->set->useUncleanKeys);
+			$set = Set::byID($linkedSetId, $this->set->keyType);
 			foreach($set->getBean()->{'ownSkemarecord' . $set->cleanBaseName . 'List'} as $id => $recordBean) {
-				$records[] = new Record($set->directives, $set, $recordBean, $set->useUncleanKeys);
+				$records[$id] = $recordBean;
 			}
 		}
 

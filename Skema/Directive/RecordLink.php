@@ -10,8 +10,16 @@ namespace Skema\Directive;
 
 use Skema\Type;
 use Skema\Set;
+use Skema\Records\Field;
+use Skema\Utility;
 
 class RecordLink extends Base {
+
+	/**
+	 * @var Field\RecordLink
+	 */
+	public $field;
+
 	public function renderHTML()
 	{
 		return $this->value;
@@ -19,8 +27,27 @@ class RecordLink extends Base {
 
 	public function renderHTMLInput()
 	{
+
+		$template = $this->field->htmlInputTemplate;
+		$options = '';
+
+		foreach( $this->field->getOptions() as $key => $values) {
+			$optionText = Utility::mustachify($template, function($match) use ($key, $values) {
+				if (isset($values[$match])) {
+					return $values[$match];
+				} else if ($match === 'key') {
+					return $key;
+				}
+				return '';
+			});
+
+			$optionTextEncoded = htmlspecialchars($optionText);
+			$selected = ($this->value == $key ? 'selected' : '');
+			$options .= "<option value='{$key}' $selected>$optionTextEncoded</option>";
+		}
+
 		$key = $this->key();
-		return "<input type='text' name='{$key}' value='{$this->value}'>";
+		return "<select name='{$key}'>$options</select>";
 	}
 
 	public function renderJSON()

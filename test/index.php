@@ -1,5 +1,5 @@
 <?php
-require_once ('vendor/autoload.php');
+require_once '../vendor/autoload.php';
 
 use Skema\Set;
 use Skema\Records\Field;
@@ -18,7 +18,7 @@ $tf->test('Add simple record', function(Testify $tf) {
 	$number = '1000';
 	$date = time();
 
-	(new Set('numbers'))
+	(new Set('numbers', Set::$keysClean))
 		->addField(new Field\Number('number'))
 		->addField(new Field\DateTime('date'))
 
@@ -27,7 +27,7 @@ $tf->test('Add simple record', function(Testify $tf) {
 			'date' => $date
 		]);
 
-	(new Set('numbers'))
+	(new Set('numbers', Set::$keysClean))
 		->eachHTML(function($record) use ($number, $date, $tf) {
 			$tf->assertSame($record['number'], 1000, 'Numbers are correct and converted correctly');
 			$tf->assertTrue(strstr($record['date'], getdate($date)['month']), 'Month name is in returned string, which means it parsed correctly');
@@ -36,14 +36,14 @@ $tf->test('Add simple record', function(Testify $tf) {
 
 
 $tf->test('Name conversion', function(Testify $tf) {
-	(new Set('version control'))
+	(new Set('version control', Set::$keysClean))
 		->addField(new Field\Number('version number'))
 
 		->addRecord([
 			'versionnumber' => 1
 		]);
 
-	(new Set('version control'))
+	(new Set('version control', Set::$keysClean))
 		->eachHTML(function($record) use ($tf) {
 			$tf->assertEquals($record['versionnumber'], 1, 'Name was correctly converted for keys');
 		});
@@ -53,14 +53,14 @@ $tf->test('Name conversion', function(Testify $tf) {
 $tf->test('Currency', function(Testify $tf) {
 
 	$number = 12389732498723;
-	(new Set('Currency'))
+	(new Set('Currency', Set::$keysClean))
 		->addField(new Field\Currency('Balance'))
 
 		->addRecord([
 			'balance' => $number
 		]);
 
-	(new Set('Currency'))
+	(new Set('Currency', Set::$keysClean))
 		->eachHTML(function($record) use($number, $tf) {
 			$tf->assertEquals($record['balance']{0}, '$', 'Dollar sign is on front');
 			$tf->assertEquals($record['balance'], '$' . $number, 'Formatted correctly');
@@ -72,7 +72,7 @@ $tf->test('Multi Records', function(Testify $tf) {
 	$text1 = 'This is some text 1';
 	$text2 = 'This is some text 2';
 
-	(new Set('Text'))
+	(new Set('Text', Set::$keysClean))
 		->addField(new Field\Text('Text'))
 
 		->addRecord([
@@ -82,7 +82,7 @@ $tf->test('Multi Records', function(Testify $tf) {
 			'text' => $text2
 		]);
 
-	(new Set('Text'))
+	(new Set('Text', Set::$keysClean))
 		->eachHTML(function($record) use (&$i, $text1, $text2, $tf) {
 			switch($i++) {
 				case 0:
@@ -103,33 +103,26 @@ $tf->test('Longitude and latitude', function(Testify $tf) {
 	$longitude = -81.581211;
 	$latitude = 28.418749;
 
-	(new Set('Test Coordinates'))
-		->addField(new Field\Longitude('A Location Longitude'))
-		->addField(new Field\Latitude('A Location Latitude'))
+	require_once '../examples/longitudeLatitude.php';
 
+	(new Set('Coordinates', Set::$keysClean))
 		->addRecord([
-			'alocationlongitude' => $longitude,
-			'alocationlatitude' => $latitude
+			'longitude' => $longitude,
+			'latitude' => $latitude
 		]);
 
-	(new Set('Test Coordinates'))
+	(new Set('Coordinates', Set::$keysClean))
 		->eachHTML(function($record) use ($longitude, $latitude, $tf) {
-			$tf->assertEquals($record['alocationlongitude'], $longitude . '&deg;', 'Correctly rendered longitude');
-			$tf->assertEquals($record['alocationlatitude'], $latitude . '&deg;', 'Correctly rendered latitude');
+			$tf->assertEquals($record['longitude'], $longitude . '&deg;', 'Correctly rendered longitude');
+			$tf->assertEquals($record['latitude'], $latitude . '&deg;', 'Correctly rendered latitude');
 		});
 });
 
 $tf->test('Complete Address', function(Testify $tf) {
 
-	(new Set('Complete Address'))
-		->addField(new Field\Text('Name'))
-		->addField(new Field\StreetAddress('Address1'))
-		->addField(new Field\StreetAddress('Address2'))
-		->addField(new Field\City('City'))
-		->addField(new Field\Province('State'))
-		->addField(new Field\Country('Country'))
-		->addField(new Field\Zip('Zip'))
+	require '../examples/simpleAddress.php';
 
+	(new Set('Complete Address', Set::$keysClean))
 		->addRecord([
 			'name' => 'Township of Pelee',
 			'address1' => '1045 WEST SHORE RD',
@@ -140,7 +133,7 @@ $tf->test('Complete Address', function(Testify $tf) {
 			'zip' => 'N0R 1M0'
 		]);
 
-	(new Set('Complete Address'))
+	(new Set('Complete Address', Set::$keysClean))
 		->eachHTML(function($record) use ($tf) {
 			$tf->assertEquals($record['name'], 'Township of Pelee', 'name correct');
 			$tf->assertEquals($record['address1'], '1045 WEST SHORE RD', 'address1 correct');
@@ -154,14 +147,14 @@ $tf->test('Complete Address', function(Testify $tf) {
 
 $tf->test('Markup (wikiLingo)', function(Testify $tf) {
 
-	(new Set('Markup (wikiLingo)'))
-		->addField(new Field\Markup('My Markup'))
+	require_once '../examples/wikiMarkup.php';
 
+	(new Set('Markup (wikiLingo)', Set::$keysClean))
 		->addRecord([
 			'mymarkup' => '__hello world!__'
 		]);
 
-	(new Set('Markup (wikiLingo)'))
+	(new Set('Markup (wikiLingo)', Set::$keysClean))
 		->eachHTML(function($record) use ($tf) {
 			$tf->assertEquals($record['mymarkup'], '<strong>hello world!</strong>', 'html is correct');
 		});
@@ -169,7 +162,7 @@ $tf->test('Markup (wikiLingo)', function(Testify $tf) {
 
 $tf->test('DropDown List Inputs', function(Testify $tf) {
 
-	(new Set('DropDown List'))
+	(new Set('DropDown List', Set::$keysClean))
 		->addField((new Field\DropDown('Which?'))
 			->setOptions([1,2,3,4,5])
 		)
@@ -178,15 +171,15 @@ $tf->test('DropDown List Inputs', function(Testify $tf) {
 			'which' => 5
 		]);
 
-	(new Set('DropDown List'))
+	(new Set('DropDown List', Set::$keysClean))
 		->eachHTMLInput(function($record) {
 			//print_r($record);
 		});
 });
 
-$tf->test('Field Link', function(Testify $tf) {
+$tf->test('Field Link (colors)', function(Testify $tf) {
 
-	(new Set('Color Set'))
+	(new Set('Color Set', Set::$keysClean))
 		->addField(new Field\Text('Color Name'))
 		->addField(new Field\Color('Color'))
 		->addField(new Field\Text('Emotion'))
@@ -211,7 +204,7 @@ $tf->test('Field Link', function(Testify $tf) {
 			'meaning' => 'enthusiasm'
 		]);
 
-	(new Set('My Favorite Color'))
+	(new Set('My Favorite Color', Set::$keysClean))
 		->addField(new Field\Text('User'))
 		->addField((new Field\FieldLink('Favorite Color'))
 			->link(new Set('Color Set'), new Field\Color('Color'))
@@ -222,19 +215,45 @@ $tf->test('Field Link', function(Testify $tf) {
 			'favoritecolor' => 'red'
 		])
 
-		->getField('Favorite Color', function($field) {
-			print_r($field->getOptions());
+		->getField('favoritecolor', function(Field\FieldLink $field) use ($tf) {
+			foreach($field->getOptions() as $key => $option) {
+				switch ($key) {
+					case 0:
+						$tf->assertEquals($option, 'blue');
+						break;
+					case 1:
+						$tf->assertEquals($option, 'red');
+						break;
+					case 2:
+						$tf->assertEquals($option, 'orange');
+						break;
+				}
+			}
 		});
 
-	(new Set('My Favorite Color'))
-		->eachHTMLInput(function($record) {
-			//print_r($record);
+	(new Set('My Favorite Color', Set::$keysClean))
+		->eachHTMLInput(function($values) use ($tf) {
+			foreach($values as $key => $value) {
+				switch ($key) {
+					case 'user':
+						$tf->assertEquals(strstr($value, 'Charles'), true, 'Correct value');
+						break;
+					case 'favoritecolor':
+						$selectElement = new SimpleXMLElement($value);
+						$tf->assertEquals($selectElement->option[1]['selected'] . '', 'selected', 'Correct item selected');
+						$tf->assertEquals($selectElement->option[1] . '', 'red', 'Correct value selected');
+
+						$tf->assertEquals($selectElement->option[0] . '', 'blue', 'Correct items in select element');
+						$tf->assertEquals($selectElement->option[2] . '', 'orange', 'Correct items in select element');
+						break;
+				}
+			}
 		});
 });
 
 $tf->test('Record Link', function(Testify $tf) {
 
-	(new Set('Color Set 2'))
+	(new Set('Color Set 2', Set::$keysClean))
 		->addField(new Field\Text('Color Name 2'))
 		->addField(new Field\Color('Color 2'))
 		->addField(new Field\Text('Emotion 2'))
@@ -259,10 +278,11 @@ $tf->test('Record Link', function(Testify $tf) {
 			'meaning2' => 'enthusiasm'
 		]);
 
-	(new Set('My Favorite Color 2'))
+	(new Set('My Favorite Color 2', Set::$keysClean))
 		->addField(new Field\Text('User 2'))
 		->addField((new Field\RecordLink('Favorite Color 2'))
-			->link(new Set('Color Set 2'))
+			->setHtmlInputTemplate('{{emotion2}} / {{meaning2}}')
+			->link(new Set('Color Set 2', Set::$keysClean))
 		)
 
 		->addRecord([
@@ -270,13 +290,23 @@ $tf->test('Record Link', function(Testify $tf) {
 			'favoritecolor2' => 2
 		])
 
-		->getField('Favorite Color 2', function($field) {
-			//print_r($field->getOptions());
+		->getField('favoritecolor2', function(Field\RecordLink $field) use ($tf) {
+			$totalOptions = 0;
+			foreach($field->getOptions() as $recordKey => $record) {
+				switch ($record->color2) {
+					case 'blue':
+					case 'red':
+					case 'orange':
+						$totalOptions++;
+				}
+			}
+
+			$tf->assertEquals($totalOptions, 3, 'Correct number of linked records');
 		});
 
-	(new Set('My Favorite Color 2', true))
-		->eachHTMLInput(function($array, $id) {
-			echo $id . "\n";
+	(new Set('My Favorite Color 2', Set::$keysClean))
+		->eachHTMLInput(function($array) {
+			//echo $id . "\n";
 			print_r($array);
 		});
 });

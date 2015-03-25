@@ -8,6 +8,7 @@
 
 namespace Skema\Directive;
 
+use Skema\Records\Field;
 use Skema\Set;
 use Skema\Utility;
 use R;
@@ -15,18 +16,23 @@ use Skema;
 
 abstract class Base
 {
+	/**
+	 * @var Field\Base
+	 */
 	public $field;
 	public $value;
 	public $set;
+	public $recordID;
 
 	public function __construct($field, Set $set) {
 		$this->field = $field;
 		$this->set = $set;
 	}
 
-	public function setValue($value)
+	public function setValue($value, $recordID = 0)
 	{
 		$this->value = $value;
+		$this->recordID = $recordID;
 
 		return $this;
 	}
@@ -34,7 +40,26 @@ abstract class Base
 	public function key()
 	{
 		$bean = $this->field->getBean($this->set);
-		return $bean->cleanName . '[' . $bean->skemasetID . ']';
+		$set = $this->set;
+
+		switch ($set->keyType) {
+			default:
+			case Set::$keysID:
+				$setKey = $set->getBean()->getID();
+				$fieldKey = $bean->getID();
+				break;
+			case Set::$keysClean:
+				$setKey = $set->getBean()->cleanName;
+				$fieldKey = $bean->cleanName;
+				break;
+			case Set::$keysDirty:
+				$setKey = $set->getBean()->name;
+				$fieldKey = $bean->name;
+				break;
+		}
+
+		return 'skema[' . $setKey . '][' . $this->recordID . '][' . $fieldKey . ']';
+
 	}
 
 	public function renderHTML()

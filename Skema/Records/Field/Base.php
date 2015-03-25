@@ -19,6 +19,7 @@ abstract class Base
 	public $cleanName;
 	public $directive = null;
 	public $set = null;
+	public $prerequisite = false;
 
 	private $bean = null;
 
@@ -33,6 +34,12 @@ abstract class Base
 		$this->cleanName = Utility::cleanFieldName($name);
 		$this->set = $set;
 		$this->bean = $bean;
+	}
+
+	public function setPrerequisite($value)
+	{
+		$this->prerequisite = $value ? true : false;
+		return $this;
 	}
 
 	public static function byID($id, Set $set)
@@ -51,6 +58,7 @@ abstract class Base
 		$bean->cleanName = $this->cleanName;
 		$bean->created = R::isoDateTime();
 		$bean->type = get_class($this);
+		$bean->prerequisite = $this->prerequisite;
 
 		return $this->bean = $bean;
 	}

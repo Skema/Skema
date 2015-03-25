@@ -29,19 +29,23 @@ class Set
 	 */
 	public $directives = [];
 	private $bean = null;
-	public $useUncleanKeys = false;
+	public $keyType = 0;
+
+	public static $keysID = 0;
+	public static $keysClean = 1;
+	public static $keysDirty = 2;
 
 	/**
 	 * @param String $name
-	 * @param Boolean $useUncleanKeys
+	 * @param Number $keyType
 	 * @param $bean
 	 */
-	public function __construct($name, $useUncleanKeys = false, $bean = null)
+	public function __construct($name, $keyType = 0, $bean = null)
 	{
 		$this->name = $name;
 		$this->cleanBaseName = Utility::cleanTableName($name);
 		$this->cleanName = 'skemaset' . $this->cleanBaseName;
-		$this->useUncleanKeys = $useUncleanKeys;
+		$this->keyType = $keyType;
 
 		if ($bean === null) {
 			$bean = $this->getBean();
@@ -54,11 +58,11 @@ class Set
 		}
 	}
 
-	public static function byID($id, $useUncleanKeys = false)
+	public static function byID($id, $keyType = 0)
 	{
 		$bean = R::findOne('skemaset', ' id = ? ', [ $id ]);
 
-		return new self($bean->name, $useUncleanKeys, $bean);
+		return new self($bean->name, $keyType, $bean);
 	}
 
 	public function getBean()
@@ -84,8 +88,21 @@ class Set
 		foreach($this->getBean()->ownSkemafieldList as $fieldBean) {
 			$field = Type::Field(new $fieldBean->type($fieldBean->name, $this, $fieldBean));
 
-			$this->fields[$this->useUncleanKeys ? $fieldBean->name : $fieldBean->cleanName] = $field;
-			$this->directives[$this->useUncleanKeys ? $fieldBean->name : $fieldBean->cleanName] = $field->getDirective();
+			switch ($this->keyType) {
+				default:
+				case self::$keysID:
+					$key = $fieldBean->getID();
+					break;
+				case self::$keysClean:
+					$key = $fieldBean->cleanName;
+					break;
+				case self::$keysDirty:
+					$key = $fieldBean->name;
+					break;
+			}
+
+			$this->fields[$key] = $field;
+			$this->directives[$key] = $field->getDirective();
 		}
 
 		return $this;
@@ -98,7 +115,21 @@ class Set
 	public function addField($field)
 	{
 		$field->addToSet($this);
-		$this->directives[$this->useUncleanKeys ? $field->name : $field->cleanName] = $field->getDirective();
+
+		switch ($this->keyType) {
+			default:
+			case self::$keysID:
+				$key = $field->getBean()->getID();
+				break;
+			case self::$keysClean:
+				$key = $field->cleanName;
+				break;
+			case self::$keysDirty:
+				$key = $field->name;
+				break;
+		}
+
+		$this->directives[$key] = $field->getDirective();
 
 		return $this;
 	}
@@ -107,7 +138,7 @@ class Set
 		foreach($values as $key => $value) {
 			$this->directives[$key]->setValue($value);
 		}
-		$record = new Record($this->directives, $this, null, $this->useUncleanKeys);
+		$record = new Record($this->directives, $this, null, $this->keyType);
 
 		$record->addTo($this);
 
@@ -121,13 +152,26 @@ class Set
 
 		$recordBean = R::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
 
-		foreach($recordBean as $key => $value) {
-			if (isset($directives[$this->useUncleanKeys ? $fields[$key]->name : $key])) {
-				$directives[$this->useUncleanKeys ? $fields[$key]->name : $key]->setValue($value);
+		foreach($recordBean as $cleanName => $value) {
+			switch ($this->keyType) {
+				default:
+				case self::$keysID:
+					$key = $fields[$cleanName]->getBean()->getID();
+					break;
+				case self::$keysClean:
+					$key = $cleanName;
+					break;
+				case self::$keysDirty:
+					$key = $fields[$cleanName]->name;
+					break;
+			}
+
+			if (isset($directives[$key])) {
+				$directives[$key]->setValue($value, $recordBean->getID());
 			}
 		}
 
-		return new Record($directives, $this, $recordBean, $this->useUncleanKeys);
+		return new Record($directives, $this, $recordBean, $this->keyType);
 	}
 
 	/**
@@ -146,27 +190,53 @@ class Set
 			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
 				$values          = [ ];
 
-				foreach ( $fields as $key => $field ) {
-					$directive = Type::Directive($directives[ $key ])
-						->setValue( $recordBean->{$key} );
+				foreach ( $fields as $cleanName => $field ) {
+					$directive = Type::Directive($directives[ $cleanName ])
+						->setValue( $recordBean->{$cleanName}, $recordBean->getID() );
 
-					$values[ $this->useUncleanKeys ? $field->name : $key ] = $directive;
+					switch ($this->keyType) {
+						default:
+						case self::$keysID:
+							$key = $fields[$cleanName]->getBean()->getID();
+							break;
+						case self::$keysClean:
+							$key = $cleanName;
+							break;
+						case self::$keysDirty:
+							$key = $fields[$cleanName]->name;
+							break;
+					}
+
+					$values[ $key ] = $directive;
 				}
 
-				$fn( new Record( $values, $this, $recordBean, $this->useUncleanKeys ) );
+				$fn( $values, $this, $recordBean, $this->keyType );
 			}
 		} else {
 			foreach ( $setBean->{'ownSkemarecord' . $this->cleanBaseName . 'List'} as $id => $recordBean ) {
 				$processedValues = [ ];
 
-				foreach ( $fields as $key => $field ) {
-					$directive = Type::Directive($directives[ $key ])
-						->setValue( $recordBean->{$key} );
+				foreach ( $fields as $cleanName => $field ) {
+					$directive = Type::Directive($directives[ $cleanName ])
+						->setValue( $recordBean->{$cleanName}, $recordBean->getID() );
 
-					$processedValues[ $this->useUncleanKeys ? $field->name : $key ] = $fieldFn( $directive );
+					switch ($this->keyType) {
+						default:
+						case self::$keysID:
+							$key = $fields[$cleanName]->getBean()->getID();
+							break;
+						case self::$keysClean:
+							$key = $cleanName;
+							break;
+						case self::$keysDirty:
+							$key = $fields[$cleanName]->name;
+							break;
+					}
+
+					$processedValues[ $key ] = $fieldFn( $directive );
 				}
 
-				$fn( $processedValues, $recordBean->getID() );
+				$fn( $processedValues );
 			}
 		}
 
@@ -208,11 +278,10 @@ class Set
 		return $this;
 	}
 
-	public function getField($fieldName, $fn)
+	public function getField($key, $fn)
 	{
-		$fieldBean = R::findOne('skemafield', ' name = ? and skemaset_id = ? ', [$fieldName, $this->bean->getID()]);
-		if (!empty($fieldBean)) {
-			$fn(new $fieldBean->type($fieldBean->name, $this, $fieldBean));
+		if (!empty($this->fields[$key])) {
+			$fn($this->fields[$key]);
 		}
 
 		return $this;

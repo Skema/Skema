@@ -31,4 +31,10 @@ class Utility
 	{
 		return strtr(utf8_decode($str), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
 	}
+
+	public static function mustachify($value, $fn) {
+		return preg_replace_callback('/{{\s*([\w\.]+)\s*}}/', function($matches) use ($fn) {
+			return $fn($matches[1]);
+		}, $value);
+	}
 }
