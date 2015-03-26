@@ -7,25 +7,9 @@
     "gabordemooij/redbean": "dev-master",
     "wikilingo/wikilingo": "0.12.*"
   },
-  "repositories": [
-    {
-      "type": "package",
-      "package": {
-        "name": "gabordemooij/redbean",
-        "version": "dev-master",
-        "dist": {
-          "url": "http://www.redbeanphp.com/downloadredbean.php",
-          "type": "tar"
-        }
-      }
-    }
-  ],
   "autoload": {
     "psr-0": {
       "Skema\\": "./"
-    },
-    "files": [
-      "./vendor/gabordemooij/redbean/rb.php"
-    ]
+    }
   }
 }

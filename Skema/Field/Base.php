@@ -8,7 +8,7 @@
 
 namespace Skema\Field;
 
-use R;
+use RedBeanPHP;
 use Skema;
 use Skema\Set;
 use Skema\Utility;
@@ -48,7 +48,7 @@ abstract class Base
 
 	public static function byID($id, Set $set)
 	{
-		$bean = R::findOne('skemafield', ' id = ? ', [ $id ]);
+		$bean = RedBeanPHP::findOne('skemafield', ' id = ? ', [ $id ]);
 		$field = new $bean->type($bean->name, $set, $bean);
 		return $field;
 	}
@@ -57,10 +57,10 @@ abstract class Base
 	{
 		if ($this->bean !== null) return $this->bean;
 
-		$bean = R::dispense('skemafield');
+		$bean = RedBeanPHP::dispense('skemafield');
 		$bean->name = $this->name;
 		$bean->cleanName = $this->cleanName;
-		$bean->created = R::isoDateTime();
+		$bean->created = RedBeanPHP::isoDateTime();
 		$bean->type = get_class($this);
 		$bean->prerequisite = $this->prerequisite;
 
@@ -71,7 +71,7 @@ abstract class Base
 		if ($this->bean !== null) return $this->bean;
 
 		if ($set !== null) {
-			$bean = R::findOne( 'skemafield', ' name = ? and skemaset_id = ? ', [
+			$bean = RedBeanPHP::findOne( 'skemafield', ' name = ? and skemaset_id = ? ', [
 				$this->name,
 				$set->getBean()->getID()
 			] );
@@ -103,7 +103,7 @@ abstract class Base
 	{
 		$setBean = $set->getBean();
 
-		if (R::count('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $setBean->getID()]) > 0) {
+		if (RedBeanPHP::count('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $setBean->getID()]) > 0) {
 			throw new \Exception('Already exists on set');
 		}
 
@@ -113,7 +113,7 @@ abstract class Base
 		$this->set = $set;
 		$setBean->ownSkemafieldList[] = $fieldBean;
 
-		R::storeAll([$fieldBean, $setBean]);
+		RedBeanPHP::storeAll([$fieldBean, $setBean]);
 
 		return $this;
 	}
@@ -130,6 +130,6 @@ abstract class Base
 
 	public static function exists($name)
 	{
-		return R::count('skemafield', ' name = ? ', [$name]) > 0;
+		return RedBeanPHP::count('skemafield', ' name = ? ', [$name]) > 0;
 	}
 }

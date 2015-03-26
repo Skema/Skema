@@ -9,7 +9,7 @@
 namespace Skema\Field;
 
 use Skema\Set;
-use R;
+use RedBeanPHP;
 
 class DropDown extends Base {
 
@@ -34,7 +34,7 @@ class DropDown extends Base {
 
 		$bean->{$this->_('options')} = implode(',', $options);
 
-		R::store($bean);
+		RedBeanPHP::store($bean);
 		return $this;
 	}
 

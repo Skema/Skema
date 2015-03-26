@@ -11,7 +11,7 @@ namespace Skema\Field;
 use Skema;
 use Skema\Set;
 use Skema\Record;
-use R;
+use RedBeanPHP;
 
 class FieldLink extends Base {
 
@@ -33,7 +33,7 @@ class FieldLink extends Base {
 		$bean->{$this->_('linkedSetId')} = $linkedSet->getBean()->getID();
 		$bean->{$this->_('linkedFieldId')} = $linkedField->getBean($linkedSet)->getID();
 
-		R::store($bean);
+		RedBeanPHP::store($bean);
 		return $this;
 	}
 

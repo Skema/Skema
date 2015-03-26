@@ -8,7 +8,7 @@
 
 namespace Skema;
 
-use R;
+use RedBeanPHP;
 use Skema\Field;
 use Skema\Directive;
 use Skema\Record;
@@ -60,7 +60,7 @@ class Set
 
 	public static function byID($id, $keyType = 0)
 	{
-		$bean = R::findOne('skemaset', ' id = ? ', [ $id ]);
+		$bean = RedBeanPHP::findOne('skemaset', ' id = ? ', [ $id ]);
 
 		return new self($bean->name, $keyType, $bean);
 	}
@@ -69,13 +69,13 @@ class Set
 	{
 		if ($this->bean !== null) return $this->bean;
 
-		$bean = R::findOne('skemaset', ' name = ? ', [ $this->name ]);
+		$bean = RedBeanPHP::findOne('skemaset', ' name = ? ', [ $this->name ]);
 
 		if (empty($bean)) {
-			$bean = R::dispense('skemaset');
+			$bean = RedBeanPHP::dispense('skemaset');
 			$bean->name = $this->name;
 			$bean->cleanName = Utility::cleanTableName($this->name);
-			$bean->created = R::isoDateTime();
+			$bean->created = RedBeanPHP::isoDateTime();
 			$bean->description = '';
 			$bean->ownFieldList;
 			$bean->{'ownSkemarecord' . $this->cleanBaseName . 'List'};
@@ -150,7 +150,7 @@ class Set
 		$fields = $this->fields;
 		$directives = $this->directives;
 
-		$recordBean = R::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
+		$recordBean = RedBeanPHP::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
 
 		foreach($recordBean as $cleanName => $value) {
 			switch ($this->keyType) {

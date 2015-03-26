@@ -9,7 +9,7 @@
 namespace Skema\Field;
 
 use Skema;
-use R;
+use RedBeanPHP;
 
 class Longitude extends Base {
 

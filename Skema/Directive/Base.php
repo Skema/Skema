@@ -11,7 +11,7 @@ namespace Skema\Directive;
 use Skema\Field;
 use Skema\Set;
 use Skema\Utility;
-use R;
+use RedBeanPHP;
 use Skema;
 
 abstract class Base

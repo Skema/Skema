@@ -8,7 +8,7 @@
 
 namespace Skema;
 
-use R;
+use RedBeanPHP;
 use RedBeanPHP\OODBBean;
 use Skema\Set;
 use Skema\Directive;
@@ -47,7 +47,7 @@ class Record {
 
 	public function newBean()
 	{
-		$bean = R::dispense($this->cleanName);
+		$bean = RedBeanPHP::dispense($this->cleanName);
 		return $bean;
 	}
 
@@ -59,7 +59,7 @@ class Record {
 			$recordBean->{$directive->field->cleanName} = $directive->value;
 		}
 		$setBean->{'own' . ucfirst($this->cleanName) . 'List'}[] = $recordBean;
-		R::storeAll([$recordBean, $setBean]);
+		RedBeanPHP::storeAll([$recordBean, $setBean]);
 
 		return $this;
 	}
@@ -93,13 +93,13 @@ class Record {
 
 	public function update()
 	{
-		R::store($this->bean);
+		RedBeanPHP::store($this->bean);
 		return $this;
 	}
 
 	public function delete()
 	{
-		R::trash($this->bean);
+		RedBeanPHP::trash($this->bean);
 	}
 
 	public function __get($key)
