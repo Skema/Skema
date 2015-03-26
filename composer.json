@@ -5,7 +5,8 @@
   "homepage": "http://visop-dev.com",
   "require": {
     "gabordemooij/redbean": "dev-master",
-    "wikilingo/wikilingo": "0.12.*"
+    "wikilingo/wikilingo": "0.12.*",
+    "slim/slim": "~2.5"
   },
   "autoload": {
     "psr-0": {

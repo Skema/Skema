@@ -42,8 +42,8 @@ class RecordLink extends Base {
 			});
 
 			$optionTextEncoded = htmlentities($optionText);
-			$selected = ($this->value == $recordID ? 'selected' : '');
-			$options .= "<option value='{$recordID}' $selected>$optionTextEncoded</option>";
+			$selected = ($this->value == $recordID ? ' selected="selected"' : '');
+			$options .= "<option value='{$recordID}'$selected>$optionTextEncoded</option>";
 		});
 
 		$key = $this->key();
