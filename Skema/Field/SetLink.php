@@ -8,7 +8,7 @@
 
 namespace Skema\Field;
 
-use RedBeanPHP;
+use RedBeanPHP\R;
 use Skema\Set;
 
 class SetLink extends Base {
@@ -25,7 +25,7 @@ class SetLink extends Base {
 
 		$bean->{$this->_('linkedSetId')} = $linkedSet->getBean()->getID();
 
-		RedBeanPHP::store($bean);
+		R::store($bean);
 		return $this;
 	}
 
@@ -33,7 +33,7 @@ class SetLink extends Base {
 	{
 		$sets = [];
 
-		foreach(RedBeanPHP::findAll('skemaset') as $setBean) {
+		foreach(R::findAll('skemaset') as $setBean) {
 			$sets[$setBean->getID()] = $setBean->name;
 		}
 

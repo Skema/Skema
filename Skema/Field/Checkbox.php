@@ -8,7 +8,7 @@
 
 namespace Skema\Field;
 
-use RedBeanPHP;
+use RedBeanPHP\R;
 
 class Checkbox extends Base {
 
@@ -34,7 +34,7 @@ class Checkbox extends Base {
 		$bean = $this->bean;
 		$bean->{$this->_('checkedValue')} = $checkedValue;
 
-		RedBeanPHP::store($bean);
+		R::store($bean);
 		return $this;
 	}
 

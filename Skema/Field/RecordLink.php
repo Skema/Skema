@@ -10,7 +10,7 @@ namespace Skema\Field;
 
 use Skema\Record;
 use Skema\Set;
-use RedBeanPHP;
+use RedBeanPHP\R;
 
 class RecordLink extends Base {
 
@@ -69,7 +69,7 @@ class RecordLink extends Base {
 		$this->linkedSetId =
 		$bean->{$this->_('linkedSetId')} = $linkedSet->getBean()->getID();
 
-		RedBeanPHP::store($bean);
+		R::store($bean);
 		return $this;
 	}
 
