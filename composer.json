@@ -25,7 +25,7 @@
       "Skema\\": "./"
     },
     "files": [
-      "vendor/gabordemooij/redbean/rb.php"
+      "./vendor/gabordemooij/redbean/rb.php"
     ]
   }
 }
