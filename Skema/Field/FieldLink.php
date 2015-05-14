@@ -43,8 +43,8 @@ class FieldLink extends Base {
 		if ($bean === null) return [];
 
 		$result = [];
-		$set = Set::byID($bean->{$this->_('linkedSetId')}, $this->set->keyType);
-		$field = self::byID($bean->{$this->_('linkedFieldId')}, $set);
+		$set = Set::get($bean->{$this->_('linkedSetId')}, $this->set->keyType);
+		$field = self::get($bean->{$this->_('linkedFieldId')}, $set);
 		$set->each(function($values, $recordID, $set, $recordBean, $keyType) use (&$result, $field) {
 			switch ($keyType) {
 				default:

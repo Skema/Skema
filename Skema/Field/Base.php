@@ -18,6 +18,7 @@ abstract class Base
 	public $name;
 	public $cleanName;
 	public $directive = null;
+	public $directiveClass = null;
 	public $set = null;
 	public $prerequisite = false;
 
@@ -53,6 +54,13 @@ abstract class Base
 		return $field;
 	}
 
+	public static function byCleanName($cleanName, Set $set)
+	{
+		$bean = R::findOne('skemafield', ' cleanName = ? ', [ $cleanName ]);
+		$field = new $bean->type($bean->name, $set, $bean);
+		return $field;
+	}
+
 	public function newBean()
 	{
 		if ($this->bean !== null) return $this->bean;
@@ -66,6 +74,7 @@ abstract class Base
 
 		return $this->bean = $bean;
 	}
+
 	public function getBean(Set $set = null)
 	{
 		if ($this->bean !== null) return $this->bean;
@@ -88,12 +97,18 @@ abstract class Base
 
 	public function getDirective()
 	{
+		$class = get_class($this);
+
 		if ($this->directive === null) {
-			$classParts = explode('\\', get_class($this));
-			$baseClassName = array_pop($classParts);
-			$directiveClass = 'Skema\\Directive\\' . $baseClassName;
-			$this->directive = new $directiveClass($this, $this->set);
-			return $this->directive;
+			if ($this->directiveClass !== null) {
+				$fqdn = $this->directiveClass;
+				$this->directive = new $fqdn($this, $this->set);
+			} else {
+				$classParts = explode('\\', $class);
+				$baseClassName = array_pop($classParts);
+				$directiveClass = 'Skema\\Directive\\' . $baseClassName;
+				$this->directive = new $directiveClass($this, $this->set);
+			}
 		}
 
 		return $this->directive;

@@ -23,12 +23,17 @@ class Set
 	/**
 	 * @var Field\Base[]
 	 */
-	public $fields = [];
+	public $fieldsByID = [];
+	public $fieldsByCleanName = [];
+	public $fieldsByName = [];
 
 	/**
 	 * @var Directive\Base[]
 	 */
-	public $directives = [];
+	public $directivesByID = [];
+	public $directivesByCleanName = [];
+	public $directivesByName = [];
+
 	private $bean = null;
 	public $keyType = 0;
 
@@ -66,6 +71,13 @@ class Set
 		return new self($bean->name, $keyType, $bean);
 	}
 
+	public static function byCleanName($cleanName, $keyType = 1)
+	{
+		$bean = R::findOne('skemaset', ' cleanName = ? ', [ $cleanName ]);
+
+		return new self($bean->name, $keyType, $bean);
+	}
+
 	public function getBean()
 	{
 		if ($this->bean !== null) return $this->bean;
@@ -89,21 +101,15 @@ class Set
 		foreach($this->getBean()->ownSkemafieldList as $fieldBean) {
 			$field = Type::Field(new $fieldBean->type($fieldBean->name, $this, $fieldBean));
 
-			switch ($this->keyType) {
-				default:
-				case self::$keysID:
-					$key = $fieldBean->getID();
-					break;
-				case self::$keysClean:
-					$key = $fieldBean->cleanName;
-					break;
-				case self::$keysDirty:
-					$key = $fieldBean->name;
-					break;
-			}
+			$id = $fieldBean->getID();
 
-			$this->fields[$key] = $field;
-			$this->directives[$key] = $field->getDirective();
+			$this->fieldsByID[$id] =
+			$this->fieldsByCleanName[$fieldBean->cleanName] =
+			$this->fieldsByName[$fieldBean->name] = $field;
+
+			$this->directivesByID[$id] =
+			$this->directivesByCleanName[$fieldBean->cleanName] =
+			$this->directivesByName[$fieldBean->name] = $field->getDirective();
 		}
 
 		return $this;
@@ -117,29 +123,40 @@ class Set
 	{
 		$field->addToSet($this);
 
-		switch ($this->keyType) {
-			default:
-			case self::$keysID:
-				$key = $field->getBean()->getID();
-				break;
-			case self::$keysClean:
-				$key = $field->cleanName;
-				break;
-			case self::$keysDirty:
-				$key = $field->name;
-				break;
-		}
-
-		$this->directives[$key] = $field->getDirective();
+		$this->directivesByCleanName[$field->cleanName] = $field->getDirective();
 
 		return $this;
 	}
 
 	public function addRecord($values) {
 		foreach($values as $key => $value) {
-			$this->directives[$key]->setValue($value);
+			switch ($this->keyType) {
+				default:
+				case self::$keysID:
+					$directive = $this->directivesByID[$key];
+					break;
+				case self::$keysClean:
+					$directive = $this->directivesByCleanName[$key];
+					break;
+				case self::$keysDirty:
+					$directive = $this->directivesByName[$key];
+					break;
+			}
+			$directive->setValue($value);
 		}
-		$record = new Record($this->directives, $this, null, $this->keyType);
+
+		switch ($this->keyType) {
+			default:
+			case self::$keysID:
+			$record = new Record($this->directivesByID, $this, null, $this->keyType);
+				break;
+			case self::$keysClean:
+				$record = new Record($this->directivesByCleanName, $this, null, $this->keyType);
+				break;
+			case self::$keysDirty:
+				$record = new Record($this->directivesByName, $this, null, $this->keyType);
+				break;
+		}
 
 		$record->addTo($this);
 
@@ -148,27 +165,13 @@ class Set
 
 	public function getRecord($id)
 	{
-		$fields = $this->fields;
-		$directives = $this->directives;
+		$directives = $this->directivesByCleanName;
 
 		$recordBean = R::findOne('skemarecord' . $this->cleanBaseName, ' id = ? ', [ $id ]);
 
 		foreach($recordBean as $cleanName => $value) {
-			switch ($this->keyType) {
-				default:
-				case self::$keysID:
-					$key = $fields[$cleanName]->getBean()->getID();
-					break;
-				case self::$keysClean:
-					$key = $cleanName;
-					break;
-				case self::$keysDirty:
-					$key = $fields[$cleanName]->name;
-					break;
-			}
-
-			if (isset($directives[$key])) {
-				$directives[$key]->setValue($value, $recordBean->getID());
+			if (isset($directives[$cleanName])) {
+				$directives[$cleanName]->setValue($value, $recordBean->getID());
 			}
 		}
 

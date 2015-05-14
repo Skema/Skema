@@ -52,10 +52,10 @@ abstract class Base
 				$setKey = $set->getBean()->cleanName;
 				$fieldKey = $bean->cleanName;
 				break;
-			case Set::$keysDirty:
-				$setKey = $set->getBean()->name;
-				$fieldKey = $bean->name;
-				break;
+			//case Set::$keysDirty:
+			//	$setKey = $set->getBean()->name;
+			//	$fieldKey = $bean->name;
+			//	break;
 		}
 
 		return 'skema[' . $setKey . '][' . $this->recordID . '][' . $fieldKey . ']';
@@ -81,5 +81,23 @@ abstract class Base
 	public function renderJSON()
 	{
 		return $this->value;
+	}
+
+	public static function directiveLookup($fieldClassName)
+	{
+		if ($fieldClassName::$directiveClass !== null) {
+			$directiveClass = $fieldClassName::$directiveClass;
+		} else {
+			$classParts = explode('\\', $fieldClassName);
+			$baseClassName = array_pop($classParts);
+			$directiveClass = 'Skema\\Directive\\' . $baseClassName;
+		}
+
+		return $directiveClass;
+	}
+
+	public static function sanitize($value)
+	{
+		return $value;
 	}
 }
