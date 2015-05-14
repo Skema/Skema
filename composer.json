@@ -4,7 +4,7 @@
   "license": "MIT",
   "homepage": "http://visop-dev.com",
   "require": {
-    "gabordemooij/redbean": "dev-master",
+    "gabordemooij/redbean": "~4.2.0",
     "wikilingo/wikilingo": "0.12.*"
   },
   "autoload": {
