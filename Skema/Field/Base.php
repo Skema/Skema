@@ -119,7 +119,10 @@ abstract class Base
 		$setBean = $set->getBean();
 
 		if (R::count('skemafield', ' name = ? and skemaset_id = ? ', [$this->name, $setBean->getID()]) > 0) {
-			throw new \Exception('Already exists on set');
+            if (Set::$strict) {
+                throw new \Exception('Already exists on set');
+            }
+            return $this;
 		}
 
 		$fieldBean = $this->newBean();

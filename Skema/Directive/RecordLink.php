@@ -53,12 +53,13 @@ class RecordLink extends Base {
 	public function renderJSON()
 	{
 		$field = Type::Field($this->field);
+        $result = [];
 		if (!empty($this->value)) {
 			$fieldBean = $field->getBean();
 			$linkedSetId = $fieldBean->{$field->_('linkedSetId')};
 
 			if (!empty($linkedSetId)) {
-				Set::byID($linkedSetId)->getRecord($this->value);
+				$record = Set::byID($linkedSetId)->getRecord($this->value);
 				//TODO: implement
 				throw new \Exception('Not yet implemented');
 			}

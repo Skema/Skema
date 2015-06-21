@@ -43,6 +43,8 @@ class Set
 	public static $keysClean = 1;
 	public static $keysDirty = 2;
 
+    public static $strict = false;
+
 	/**
 	 * @param String $name
 	 * @param Number $keyType
