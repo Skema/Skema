@@ -145,6 +145,8 @@ class Set
 	 */
 	public function addField($field)
 	{
+        if (isset($this->directivesByCleanName[$field->cleanName])) return $this;
+
 		$field->addToSet($this);
 
 		$this->directivesByCleanName[$field->cleanName] = $field->getDirective();
