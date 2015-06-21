@@ -26,6 +26,7 @@ class Set
 	public $fieldsByID = [];
 	public $fieldsByCleanName = [];
 	public $fieldsByName = [];
+    public $fields;
 
 	/**
 	 * @var Directive\Base[]
@@ -33,6 +34,7 @@ class Set
 	public $directivesByID = [];
 	public $directivesByCleanName = [];
 	public $directivesByName = [];
+    public $directives;
 
 	private $bean = null;
 	public $keyType = 0;
@@ -46,8 +48,12 @@ class Set
 	 * @param Number $keyType
 	 * @param $bean
 	 */
-	public function __construct($name, $keyType = 0, $bean = null)
+	public function __construct($name, $keyType = -1, $bean = null)
 	{
+        if ($keyType < self::$keysID) {
+            $keyType = self::$keysDirty;
+        }
+
 		$this->name = $name;
 		$this->cleanBaseName = Utility::cleanTableName($name);
 		$this->cleanName = 'skemaset' . $this->cleanBaseName;
@@ -64,18 +70,18 @@ class Set
 		}
 	}
 
-	public static function byID($id, $keyType = 0)
+	public static function byID($id)
 	{
 		$bean = R::findOne('skemaset', ' id = ? ', [ $id ]);
 
-		return new self($bean->name, $keyType, $bean);
+		return new self($bean->name, self::$keysID, $bean);
 	}
 
-	public static function byCleanName($cleanName, $keyType = 1)
+	public static function byCleanName($cleanName)
 	{
-		$bean = R::findOne('skemaset', ' cleanName = ? ', [ $cleanName ]);
+		$bean = R::findOne('skemaset', ' clean_name = ? ', [ $cleanName ]);
 
-		return new self($bean->name, $keyType, $bean);
+		return new self($bean->name, self::$keysClean, $bean);
 	}
 
 	public function getBean()
@@ -111,6 +117,22 @@ class Set
 			$this->directivesByCleanName[$fieldBean->cleanName] =
 			$this->directivesByName[$fieldBean->name] = $field->getDirective();
 		}
+
+        switch ($this->keyType) {
+            default:
+            case self::$keysID:
+                $this->directives = $this->directivesByID;
+                $this->fields = $this->fieldsByID;
+                break;
+            case self::$keysClean:
+                $this->directives = $this->directivesByCleanName;
+                $this->fields = $this->fieldsByCleanName;
+                break;
+            case self::$keysDirty:
+                $this->directives = $this->directivesByName;
+                $this->fields = $this->fieldsByName;
+                break;
+        }
 
 		return $this;
 	}
